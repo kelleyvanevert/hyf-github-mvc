@@ -1,20 +1,24 @@
-import Model from './model/Model.js';
-import Selector from './components/Selector.js';
-import Main from './components/Main.js';
-import Errors from './components/Errors.js';
+import { renderSelector } from './components/renderSelector.js';
+import { renderRepository } from './components/renderRepository.js';
+import { renderContributors } from './components/renderContributors.js';
+import { createAndAppend } from './lib/createAndAppend.js';
 
 async function AppComponent() {
-  const model = Model();
   const root = document.getElementById('root');
 
-  Selector(model, root);
-  Errors(model, root);
-  Main(model, root);
+  renderSelector(root, (repo) => {
+    renderRepository(repoContainer, repo);
+    renderContributors(contributorsContainer, repo);
+  });
 
-  model.subscribe((state) => console.log(state));
+  const mainContainer = createAndAppend('div', root);
+  mainContainer.style.display = 'flex';
 
-  await model.fetchRepos();
-  await model.fetchContributors(0);
+  const repoContainer = createAndAppend('div', mainContainer);
+  repoContainer.style.width = '50%';
+
+  const contributorsContainer = createAndAppend('div', mainContainer);
+  contributorsContainer.style.width = '50%';
 }
 
 window.addEventListener('load', AppComponent);

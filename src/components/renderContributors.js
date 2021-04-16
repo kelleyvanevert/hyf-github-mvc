@@ -1,33 +1,23 @@
-import createAndAppend from '../lib/createAndAppend.js';
-import clearElement from '../lib/clearElement.js';
+import { createAndAppend } from '../lib/createAndAppend.js';
+import { fetchJSON } from '../lib/fetchJSON.js';
 
-function Contributors(model, parent) {
-  const dom = {};
+export async function renderContributors(parent, repo) {
+  parent.innerHTML = '';
 
   const container = createAndAppend('section', parent, {
     class: 'contributors-container whiteframe',
   });
 
-  dom.ul = createAndAppend('ul', container, {
+  const ul = createAndAppend('ul', container, {
     class: 'contributor-list',
   });
 
-  model.subscribe((state) => {
-    const { contributors, loading, error } = state;
+  try {
+    const url = repo.contributors_url;
+    const contributors = await fetchJSON(url);
 
-    if (error) {
-      container.classList.add('hide');
-    } else {
-      container.classList.remove('hide');
-    }
-
-    if (!contributors || loading || error) {
-      return;
-    }
-
-    clearElement(dom.ul);
     contributors.forEach((contributor) => {
-      const li = createAndAppend('li', dom.ul);
+      const li = createAndAppend('li', ul);
       const a = createAndAppend('a', li, {
         href: contributor.html_url,
         class: 'contributor-item',
@@ -49,7 +39,7 @@ function Contributors(model, parent) {
         class: 'contributor-badge',
       });
     });
-  });
+  } catch (error) {
+    // ...
+  }
 }
-
-export default Contributors;
